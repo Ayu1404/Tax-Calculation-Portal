@@ -74,9 +74,9 @@ The application should now be running on [http://localhost:3000](http://localhos
 Description: Calculates the taxable income and tax payable based on the provided input details.
 
 1)  Request:
-    URL: /calculate-tax
-    Method: POST
-    Headers: Content-Type: application/json
+    URL: /calculate-tax,
+    Method: POST,
+    Headers: Content-Type: application/json,
     Body:
       annualIncome (number) - The annual income of the user.
       investments (number) - The investments made by the user (80C, 80D, etc.).
@@ -96,7 +96,7 @@ Description: Calculates the taxable income and tax payable based on the provided
 3)  Response:
 
     a) Success Response:
-       Status Code: 200 OK
+       Status Code: 200 OK,
        Body:
           taxableIncome (number) - The calculated taxable income.
           taxPayable (number) - The calculated tax payable.
@@ -116,7 +116,7 @@ Description: Calculates the taxable income and tax payable based on the provided
 
 
     b) Error Responses:
-       i) Status Code: 400 Bad Request
+       i) Status Code: 400 Bad Request,
            Body:
              error (string) - A message describing the error.
     
@@ -127,7 +127,7 @@ Description: Calculates the taxable income and tax payable based on the provided
               "error": "Invalid input data. Please provide valid numbers."
            }
     
-      ii) Status Code: 500 Internal Server Error
+      ii) Status Code: 500 Internal Server Error,
           Body:
              error (string) - A message describing the error.
 
