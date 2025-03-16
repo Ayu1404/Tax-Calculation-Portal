@@ -1,20 +1,38 @@
 import express from "express";
 import cors from "cors";
+import pg from "pg";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
+
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+
+const db = new pg.Client({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
+});
+
+db.connect();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
 // Middleware to enable CORS (Cross-Origin Resource Sharing)
 app.use(cors());
 
-app.post('/calculate-tax', (req, res) => {
+// Endpoint to calculate and store tax data
+app.post('/calculate-tax', async (req, res) => {
     try {
-        // Destructure the input data from the request body
-        const { annualIncome, investments, otherDeductions, otherIncome } = req.body;
+        const { userName, userEmail, annualIncome, investments, otherDeductions, otherIncome } = req.body;
 
         // Validate the input data
         if (
+            userName === undefined ||
+            userEmail === undefined ||
             annualIncome === undefined ||
             investments === undefined ||
             otherDeductions === undefined ||
@@ -58,15 +76,21 @@ app.post('/calculate-tax', (req, res) => {
             "Consider tax-saving FD schemes."
         ];
 
-        // Send the calculated data as a response
+        // Insert data into the database
+        const result = await db.query(
+            "INSERT INTO tax_data (user_name, user_email, annual_income, investments, other_deductions, other_income, taxable_income, tax_payable) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            [userName, userEmail, income, investment, deductions, otherIncomeSources, taxableIncome, taxPayable]
+        );
+
         res.json({
             taxableIncome,
             taxPayable,
-            taxSavingsSuggestions
+            taxSavingsSuggestions,
+            savedData: result.rows[0]
         });
 
     } catch (error) {
-        // Handle any unexpected errors
+        console.log(error.message);
         res.status(500).json({ error: "An error occurred while calculating tax." });
     }
 });
